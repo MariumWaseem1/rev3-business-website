@@ -26,6 +26,26 @@ problemSwitcher.querySelectorAll('button').forEach((button,index)=>button.addEve
 }));
 reveal.observe(problemSwitcher);
 
+// Swiping the mobile problem cards updates the matching service automatically.
+let serviceSwipeTimer;
+problemSwitcher.addEventListener('scroll',()=>{
+  clearTimeout(serviceSwipeTimer);
+  serviceSwipeTimer=setTimeout(()=>{
+    const buttons=[...problemSwitcher.querySelectorAll('button')];
+    const centre=problemSwitcher.getBoundingClientRect().left+problemSwitcher.clientWidth/2;
+    const nearest=buttons.reduce((best,button,index)=>{
+      const box=button.getBoundingClientRect();
+      const distance=Math.abs(box.left+box.width/2-centre);
+      return distance<best.distance?{index,distance}:best;
+    },{index:0,distance:Infinity});
+    if(!buttons[nearest.index].classList.contains('active'))buttons[nearest.index].click();
+  },90);
+},{passive:true});
+
+document.querySelectorAll('a span,button span').forEach(span=>{
+  if(['↗','↓','→'].includes(span.textContent.trim()))span.remove();
+});
+
 // Keep the homepage focused. These repeated or placeholder sections can return
 // when real client logos and verified case-study results are available.
 document.querySelector('.trusted')?.remove();
